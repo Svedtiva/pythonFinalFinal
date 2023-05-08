@@ -5,7 +5,7 @@ app = Flask(__name__)
 app.debug = True
 app.secret_key = 'Budders23!'
 
-# connection string is in the format mysql://Root:Budders23!@server/boatdb
+# connection string is in the format mysql://Root:password@server/boatdb
 connection = "mysql://root:Budders23!@localhost/finalfinal"
 engine = create_engine(connection, echo=True)
 conn = engine.connect()
@@ -29,7 +29,7 @@ def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        if password == 'RK123' or 'Cars!':
+        if password == 'RK123' or password == 'Cars!':
             password = password
         else:
             password = h(password)
@@ -46,9 +46,11 @@ def login():
             session['full_name'] = user[4]
             session['type'] = user[5]
             if user[5] == 'Admin':
-                return redirect(url_for('admin'))
+                acc = conn.execute(text("SELECT id FROM finalaccounts"))
+                return redirect(url_for('admin', acc=acc))
             elif user[5] == 'Vendor':
-                return redirect(url_for('vendor'))
+                acc = conn.execute(text("SELECT id FROM finalaccounts"))
+                return redirect(url_for('vendor', acc=acc))
             else:
                 acc = conn.execute(text("SELECT id FROM finalaccounts"))
                 return redirect(url_for('viewProducts', acc=acc))
@@ -63,15 +65,32 @@ def register():
 
 @app.route('/admin')
 def admin():
-    products = conn.execute(text("SELECT * FROM finalproducts")).fetchall()
-
+    query = text("SELECT * FROM finalproducts")
+    result = conn.execute(query)
+    products = []
+    for row in result:
+        products.append(row)
     return render_template('admin.html', products=products)
+
+
+@app.route('/customer')
+def customer():
+    query = text("SELECT * FROM finalproducts")
+    result = conn.execute(query)
+    products = []
+    for row in result:
+        products.append(row)
+    return render_template('customer.html', products=products)
 
 
 @app.route('/vendor')
 def vendor():
-    products = conn.execute(text("SELECT * FROM finalproducts WHERE vendor_id = session.id")).fetchall()
-
+    session_id = session.get('id')
+    query = text("SELECT * FROM finalproducts WHERE vendor_id = :session_id")
+    result = conn.execute(query, {'session_id': session_id})
+    products = []
+    for row in result:
+        products.append(row)
     return render_template('vendor.html', products=products)
 
 
@@ -84,7 +103,9 @@ def add_account():
     username = request.form['username']
     password = request.form['password']
     email = request.form['email']
-    full_name = request.form['full_name']
+    first_name = request.form['first_name']
+    last_name = request.form['last_name']
+    full_name = first_name+' '+last_name
     password = h(password)
     type = 'customer'
 
@@ -100,7 +121,56 @@ def add_account():
     return render_template('index.html')
 
 
+@app.route('/add_product', methods=['POST'])
+def add_product():
+    max_id_query = text("SELECT MAX(item_id) FROM finalproducts")
+    max_id = conn.execute(max_id_query).fetchone()[0]
+    new_id = max_id + 1 if max_id is not None else 1
 
+    vendor_id = request.form['vendor_id']
+    title = request.form['title']
+    description = request.form['description']
+    price = request.form['price']
+    image = request.form['image']
+    customizations = request.form['customizations']
+    stock = request.form['stock']
+
+    query = text("INSERT INTO finalproducts (id, vendor_id, title, description, image, customizations,"
+                 " price)"
+                 " VALUES (:id, :vendor_id, :description, :customizations, :image,"
+                 " :price)")
+    params = {"id": new_id, "vendor_id": vendor_id, "title": title, "description": description,
+              "price": price, "image": image, "customizations": customizations}
+    conn.execute(query, params)
+    conn.commit()
+
+    return url_for('admin')
+
+
+@app.route('/vendor_add_product', methods=['POST'])
+def add_product():
+    max_id_query = text("SELECT MAX(item_id) FROM finalproducts")
+    max_id = conn.execute(max_id_query).fetchone()[0]
+    new_id = max_id + 1 if max_id is not None else 1
+
+    vendor_id = session.id
+    title = request.form['title']
+    description = request.form['description']
+    price = request.form['price']
+    image = request.form['image']
+    customizations = request.form['customizations']
+    stock = request.form['stock']
+
+    query = text("INSERT INTO finalproducts (id, vendor_id, title, description, image, customizations,"
+                 " price)"
+                 " VALUES (:id, :vendor_id, :description, :customizations, :image,"
+                 " :price)")
+    params = {"id": new_id, "vendor_id": vendor_id, "title": title, "description": description,
+              "price": price, "image": image, "customizations": customizations}
+    conn.execute(query, params)
+    conn.commit()
+
+    return url_for('vendor')
 
 
 if __name__ == '__main__':

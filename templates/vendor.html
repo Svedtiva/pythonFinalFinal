@@ -1,10 +1,176 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <title>Title</title>
+	<title>Vendor Dashboard</title>
+	<link rel="stylesheet" type="text/css" href="../static/styles/admin.css">
+    <script>
+		function viewAllAccounts() {
+			// Get the popup element
+			var popup = document.getElementById("view-all-accounts-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+		function createproducts() {
+			// Get the popup element
+			var popup = document.getElementById("create-product-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+		function viewPendingRequests() {
+			// Get the popup element
+			var popup = document.getElementById("view-pending-requests-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+        function viewProducts() {
+			// Get the popup element
+			var popup = document.getElementById("view-products-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+        function viewInfo() {
+			// Get the popup element
+			var popup = document.getElementById("view-info-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+		function closePopup(popupId) {
+			// Get the popup element
+			var popup = document.getElementById(popupId);
+
+			// Hide the popup
+			popup.style.display = "none";
+		}
+	</script>
 </head>
 <body>
+	<header>
+		<h1>Vendor Dashboard</h1>
+	</header>
 
+	<nav>
+		<ul>
+			<li><a href="#" onclick="viewProducts()">View All Products</a></li>
+            <li><a href="#" onclick="createproducts()">Add New Product</a></li>
+			<li><a href="#" onclick="viewChats()">View Chats</a></li>
+            <li><a href="/acctransactions">Customer View</a></li>
+
+
+		</ul>
+	</nav>
+
+	<section>
+	</section>
+	<div id="create-product-popup" class="popup" style="background-color: black;">
+    <div class="popup-content">
+        <h2>Create Product</h2>
+        <form method="post" action="/add_product">
+
+            <label for="product-name">Product Name:</label>
+            <input type="text" id="product-name" name="title"><br><br>
+
+            <label for="product-description">Product Description:</label>
+            <textarea id="product-description" name="description"></textarea><br><br>
+
+            <label for="product-price">Product Price:</label>
+            <input type="text" id="product-price" name="price"><br><br>
+
+            <label for="product-price">Product Image Link:</label>
+            <input type="text" id="product-image" name="image"><br><br>
+
+            <button type="submit">Create</button>
+            </form>
+            <button onclick="closePopup('create-product-popup')">Cancel</button>
+    </div>
+</div>
+
+
+
+
+	<div id="view-pending-requests-popup" class="popup">
+		<div class="popup-content">
+			<h2>View Pending Requests</h2>
+<table>
+  <thead>
+    <tr>
+      <th>Request Type</th>
+      <th>Name</th>
+      <th>Email</th>
+      <th>Action</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for account in pending_accounts %}
+      <tr>
+        <td>Account</td>
+        <td>{{ account.first_name }}</td>
+          <td>{{ account.last_name }}</td>
+        <td>{{ account.email }}</td>
+        <td>
+          <form method="post" action="{{ url_for('approve_account', id=account.id) }}">
+            <button type="submit" name="action" value="approve">Approve</button>
+            <button type="submit" name="action" value="deny">Deny</button>
+          </form>
+        </td>
+      </tr>
+    {% endfor %}
+  </tbody>
+</table>			<button onclick="closePopup('view-pending-requests-popup')">Close</button>
+		</div>
+	</div>
+<div id="view-products-popup" class="popup">
+    <div class="popup-content">
+        <h2>View Products</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Seller</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Image</th>
+                    <th>Options</th>
+                    <th>Stock</th>
+                    <th>Reviews</th>
+                    <th>Admin Options</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr class="product-block">
+                   <td>{{ product.id }}</td>
+                    <td>{{ product.vendor_id }}</td>
+                    <td><h2>{{ product.title }}</h2></td>
+                    <td><p>{{ product.description }}</p></td>
+                    <td>{{ product.price }}</td>
+                    <td><img id="prodimg" src="{{ product.image }}" alt=""></td>
+                    <td>{{ product.options }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td><a href="/reviews">Product Reviews</a></td>
+                    <td><a href="/editprod">Edit/Delete</a></td>
+
+                </tr>
+                 {% endfor %}
+            </tbody>
+        </table>
+        <button onclick="closePopup('view-products-popup')">Close</button>
+    </div>
+</div>
+
+
+	<footer>
+		<p>&copy; 2023 Riley is great. All rights reserved.</p>
+	</footer>
 </body>
 </html>
