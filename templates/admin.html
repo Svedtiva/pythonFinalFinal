@@ -60,17 +60,17 @@
 
 	<nav>
 		<ul>
+            <li><a href="{{ url_for('logout') }}">Log Out</a></li>
 			<li><a href="#" onclick="viewProducts()">View All Products</a></li>
             <li><a href="#" onclick="createproducts()">Add New Product</a></li>
 			<li><a href="#" onclick="viewChats()">View Chats</a></li>
-            <li><a href="/acctransactions">Customer View</a></li>
+            <li><a href="/customer">Customer View</a></li>
 
 
 		</ul>
 	</nav>
 
-	<section>
-	</section>
+<!--    create products-->
 	<div id="create-product-popup" class="popup" style="background-color: black;">
     <div class="popup-content">
         <h2>Create Product</h2>
@@ -91,6 +91,12 @@
             <label for="product-price">Product Image Link:</label>
             <input type="text" id="product-image" name="image"><br><br>
 
+            <label for="product-name">Product Options:</label>
+            <input type="text" id="product-options" name="customizations"><br><br>
+
+            <label for="product-name">Product Stock:</label>
+            <input type="text" id="product-stock" name="stock"><br><br>
+
             <button type="submit">Create</button>
             </form>
             <button onclick="closePopup('create-product-popup')">Cancel</button>
@@ -99,38 +105,14 @@
 
 
 
-
+<!--view messages-->
 	<div id="view-pending-requests-popup" class="popup">
 		<div class="popup-content">
-			<h2>View Pending Requests</h2>
-<table>
-  <thead>
-    <tr>
-      <th>Request Type</th>
-      <th>Name</th>
-      <th>Email</th>
-      <th>Action</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for account in pending_accounts %}
-      <tr>
-        <td>Account</td>
-        <td>{{ account.first_name }}</td>
-          <td>{{ account.last_name }}</td>
-        <td>{{ account.email }}</td>
-        <td>
-          <form method="post" action="{{ url_for('approve_account', id=account.id) }}">
-            <button type="submit" name="action" value="approve">Approve</button>
-            <button type="submit" name="action" value="deny">Deny</button>
-          </form>
-        </td>
-      </tr>
-    {% endfor %}
-  </tbody>
-</table>			<button onclick="closePopup('view-pending-requests-popup')">Close</button>
+						<button onclick="closePopup('view-pending-requests-popup')">Close</button>
 		</div>
 	</div>
+
+<!--    view products-->
 <div id="view-products-popup" class="popup">
     <div class="popup-content">
         <h2>View Products</h2>
@@ -161,7 +143,11 @@
                     <td>{{ product.options }}</td>
                     <td>{{ product.stock }}</td>
                     <td><a href="/reviews">Product Reviews</a></td>
-                    <td><a href="/editprod">Edit/Delete</a></td>
+                    <td>
+                        <form action="{{ url_for('admin_delete_product', item_id=product.item_id) }}" method="post">
+                            <button type="submit" class="btn btn-danger">Delete</button>
+                        </form>
+                    </td>
 
                 </tr>
                  {% endfor %}
