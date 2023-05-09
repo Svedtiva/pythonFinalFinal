@@ -70,9 +70,11 @@ def login():
     else:
         return render_template('index.html')
 
+
 @app.route('/register', methods=['GET'])
 def register():
         return render_template('register.html')
+
 
 @app.route('/add_account', methods=['POST'])
 def add_account():
@@ -269,11 +271,12 @@ def add_to_cart():
     item_id = request.form['item_id']
     vendor_id = request.form['vendor_id']
     purchaser_id = session.get('id')
-    cart_id = f"{item_id}-{vendor_id}-{purchaser_id}"
+    cart_id = f""
     status = "open"
 
     query = text(
-        "INSERT INTO finalcart (cart_id, item_id, vendor_id, purchaser_id, status) VALUES (:cart_id, :item_id, :vendor_id, :purchaser_id, :status)")
+        "INSERT INTO finalcart (cart_id, item_id, vendor_id, purchaser_id, status)"
+        " VALUES (:cart_id, :item_id, :vendor_id, :purchaser_id, :status)")
     params = {"cart_id": cart_id, "item_id": item_id, "vendor_id": vendor_id, "purchaser_id": purchaser_id,
               "status": status}
     conn.execute(query, params)
@@ -281,6 +284,11 @@ def add_to_cart():
 
     flash("Item added to cart successfully!")
     return redirect(url_for('customer'))
+
+
+@app.route('/accinfo')
+def accinfo():
+    return render_template('accinfo.html')
 
 
 if __name__ == '__main__':
