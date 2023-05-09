@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<header>
+        {% if session.logged_in %}
+        <h2>Logged in as <a href="/accinfo">{{session.full_name}}</a></h2>
+        {% else %}
+        <h2>Welcome to the Riley Is Great Shopping Network <3</h2>
+        {% endif %}
+        <div>
+            <table>
+                <tbody>
+                <tr>
+                    <input type="text"><button>Search</button>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </header>
+
+        <link rel="stylesheet" type="text/css" href="../static/styles/admin.css">
+    <script>
+		function viewAllAccounts() {
+			// Get the popup element
+			var popup = document.getElementById("view-all-accounts-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+		function createproducts() {
+			// Get the popup element
+			var popup = document.getElementById("create-product-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+		function viewPendingRequests() {
+			// Get the popup element
+			var popup = document.getElementById("view-pending-requests-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+        function viewProducts() {
+			// Get the popup element
+			var popup = document.getElementById("view-products-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+        function viewInfo() {
+			// Get the popup element
+			var popup = document.getElementById("view-info-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+		function closePopup(popupId) {
+			// Get the popup element
+			var popup = document.getElementById(popupId);
+
+			// Hide the popup
+			popup.style.display = "none";
+		}
+	</script>
+</head>
+<body>
+	<nav>
+		<ul>
+
+            {% if session.logged_in %}
+                <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+                <li><a href="#" onclick="viewChats()">Chat With Us!</a></li>
+            {% else %}
+                <li><a href="/in">Log In</a></li>
+                <li><a href="/register">Register</a></li>
+            {% endif %}
+		</ul>
+	</nav>
+<table>
+
+            <tbody>
+                {% for product in products %}
+                <tr class="product-block">
+                <td><p></p><img id="prodimg" src="{{ product.image }}" alt=""></td>
+                    <td><h2>{{ product.Title }}</h2><br><br>
+                        <p>{{ product.description }}</p></td>
+                    <td><p>Price</p><br>${{ product.price }}</td>
+                    <td><p>Options</p>{{ product.options }}</td>
+                    <td><p>Stock</p>{{ product.stock }}</td>
+                    <td><p>Reviews</p><a href="/reviews">Product Reviews</a></td>
+                    <td>
+                        <form action="" method="post">
+                            <button type="submit" class="btn btn-danger">Add To Cart</button>
+                        </form>
+                    </td>
+                </tr>
+                 {% endfor %}
+            </tbody>
+        </table>
+<!--    create products-->
+	<div id="create-product-popup" class="popup" style="background-color: black;">
+    <div class="popup-content">
+        <h2>Create Product</h2>
+        <form method="post" action="/add_product">
+
+            <label for="product-name">Vendor Id:</label>
+            <input type="number" id="vendor-id" name="vendor_id"><br><br>
+
+            <label for="product-name">Product Name:</label>
+            <input type="text" id="product-name" name="title"><br><br>
+
+            <label for="product-description">Product Description:</label>
+            <textarea id="product-description" name="description"></textarea><br><br>
+
+            <label for="product-price">Product Price:</label>
+            <input type="text" id="product-price" name="price"><br><br>
+
+            <label for="product-price">Product Image Link:</label>
+            <input type="text" id="product-image" name="image"><br><br>
+
+            <label for="product-name">Product Options:</label>
+            <input type="text" id="product-options" name="customizations"><br><br>
+
+            <label for="product-name">Product Stock:</label>
+            <input type="text" id="product-stock" name="stock"><br><br>
+
+            <button type="submit">Create</button>
+            </form>
+            <button onclick="closePopup('create-product-popup')">Cancel</button>
+    </div>
+</div>
+
+
+
+<!--view messages-->
+	<div id="view-pending-requests-popup" class="popup">
+		<div class="popup-content">
+						<button onclick="closePopup('view-pending-requests-popup')">Close</button>
+		</div>
+	</div>
+
+<!--    view products-->
+<div id="view-products-popup" class="popup">
+    <div class="popup-content">
+        <h2>View Products</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Seller</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Price</th>
+                    <th>Image</th>
+                    <th>Options</th>
+                    <th>Stock</th>
+                    <th>Purchase</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for product in products %}
+                <tr class="product-block">
+                   <td>{{ product.id }}</td>
+                    <td>{{ product.vendor_id }}</td>
+                    <td><h2>{{ product.title }}</h2></td>
+                    <td><p>{{ product.description }}</p></td>
+                    <td>{{ product.price }}</td>
+                    <td><img id="prodimg" src="{{ product.image }}" alt=""></td>
+                    <td>{{ product.options }}</td>
+                    <td>{{ product.stock }}</td>
+                    <td><a href="/reviews">Product Reviews</a></td>
+                    <td>
+                        <form action="" method="post">
+                            <button type="submit" class="btn btn-danger">Add To Cart</button>
+                        </form>
+                    </td>
+
+                </tr>
+                 {% endfor %}
+            </tbody>
+        </table>
+        <button onclick="closePopup('view-products-popup')">Close</button>
+    </div>
+</div>
+
+
+	<footer class="footer">
+		<p>&copy; 2023 Riley is great. All rights reserved.</p>
+	</footer>
+</body>
+</html></html>

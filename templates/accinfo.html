@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Account Page</title>
+</head>
+<body>
+    <h1>Welcome, {{session['full_name']}}!</h1>
+    <h2>Account Information</h2>
+    <table>
+        <tr>
+            <td>Username:</td>
+            <td>{{session['username']}}</td>
+        </tr>
+        <tr>
+            <td>Email:</td>
+            <td>{{session['email']}}</td>
+        </tr>
+        <tr>
+            <td>Full Name:</td>
+            <td>{{session['full_name']}}</td>
+        </tr>
+        <tr>
+            <td>Account Type:</td>
+            <td>{{session['type']}}</td>
+        </tr>
+    </table>
+</body>
+</html>
