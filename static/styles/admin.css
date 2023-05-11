@@ -1,85 +1,91 @@
 body {
     background: url(https://upload.wikimedia.org/wikipedia/commons/thumb/0/0b/Mountains-1412683.svg/1280px-Mountains-1412683.svg.png) no-repeat center center;
     background-size: cover;
-	color: #fff;
-	font-family: Arial, sans-serif;
-	margin: 0;
-	padding: 0;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
     align-items: center;
     justify-content: center;
-    height: 75vh;
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
 }
 
 header {
-	background-color: #000000;
-	color: #fff;
-	padding: 20px;
+    background-color: #000000;
+    color: #fff;
+    padding: 20px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
 }
 
 nav {
-	background-color: #007f5f;
-	padding: 10px;
-	justify-content: center;
+    background-color: #007f5f;
+    padding: 10px;
+    justify-content: center;
 }
 
 nav ul {
-	list-style: none;
-	margin: 0;
-	padding: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 nav li {
-	display: inline-block;
-	margin-right: 20px;
+    display: inline-block;
+    margin-right: 20px;
 }
 
 nav a {
-	color: #fff;
-	text-decoration: none;
+    color: #fff;
+    text-decoration: none;
 }
 
 nav a:hover {
-	color: #fff;
-	text-decoration: underline;
+    color: #fff;
+    text-decoration: underline;
 }
 
 section {
-	padding: 20px;
+    padding: 20px;
 }
 
 button {
-	background-color: #007f5f;
-	border: none;
-	border-radius: 5px;
-	color: #fff;
-	cursor: pointer;
-	font-size: 16px;
-	padding: 10px 20px;
+    background-color: #007f5f;
+    border: none;
+    border-radius: 5px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 10px 20px;
 }
 
 button:hover {
-	background-color: #00594c;
+    background-color: #00594c;
 }
 
 .popup {
-	background-color: #007f5f;
-	display: none;
+    background-color: #007f5f;
+    display: none;
 }
 
 .product-block {
-	background-color: #000000;
-	border: 1px solid #ccc;
-	padding: 10px;
-	margin-bottom: 10px;
-	display: flex;
-	justify-content: space-between;
-	width: 120%;
+    background-color: #000000;
+    border: 1px solid #ccc;
+    padding: 10px;
+    margin-bottom: 10px;
+    display: flex;
+    justify-content: space-between;
+    width: 120%;
 }
 
 .product-block img {
-	max-height: 100px;
-	max-width: 100px;
+    max-width: 100px;
 }
 
 footer {
@@ -90,6 +96,11 @@ footer {
     align-items: center;
     justify-content: center;
     box-shadow: -5px -5px 10px rgb(0,0,0,0.3);
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 999;
 }
 footer > p {
     text-align: center;

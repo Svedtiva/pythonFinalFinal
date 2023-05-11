@@ -1,4 +1,6 @@
 <!DOCTYPE html>
+{% extends 'Base.html' %}
+
 <html>
 <head>
 	<title>Vendor Dashboard</title>
@@ -60,11 +62,7 @@
 
 	<nav>
 		<ul>
-                <li><a href="{{ url_for('logout') }}">Log Out</a></li>
-			<li><a href="#" onclick="viewProducts()">View All Products</a></li>
-            <li><a href="#" onclick="createproducts()">Add New Product</a></li>
-			<li><a href="#" onclick="viewChats()">View Chats</a></li>
-            <li><a href="/acctransactions">Customer View</a></li>
+
 
 
 		</ul>

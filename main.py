@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from flask import Flask, render_template, request, redirect, url_for, session, flash
 from sqlalchemy import Column, Integer, String, Numeric, create_engine, text, Table, MetaData, select, engine, and_
 
@@ -139,7 +141,7 @@ def add_product():
 
     query = text("INSERT INTO finalproducts (item_id, vendor_id, title, description, image, customizations,"
                  " price, stock)"
-                 " VALUES (:item_id, :vendor_id, :title, :description, :customizations, :image,"
+                 " VALUES (:item_id, :vendor_id, :title, :description, :image, :customizations, "
                  " :price, :stock)")
     params = {"item_id": new_id, "vendor_id": vendor_id, "title": title, "description": description,
               "price": price, "image": image, "customizations": customizations, 'stock': stock}
@@ -266,29 +268,69 @@ def customer():
     return render_template('customer.html', products=products)
 
 
-@app.route('/add_to_cart', methods=['POST'])
-def add_to_cart():
-    item_id = request.form['item_id']
-    vendor_id = request.form['vendor_id']
-    purchaser_id = session.get('id')
-    cart_id = f""
-    status = "open"
+@app.route('/add_to_cart')
+def add_products_to_cart(products):
+    max_id_query = text("SELECT MAX(id) FROM finalcarts Where status = open AND shopper_id = :session.id"), {'session.id': session.id}
+    max_id = conn.execute(max_id_query).fetchone()[0]
+    new_id = max_id + 1 if max_id is not None else 1
 
-    query = text(
-        "INSERT INTO finalcart (cart_id, item_id, vendor_id, purchaser_id, status)"
-        " VALUES (:cart_id, :item_id, :vendor_id, :purchaser_id, :status)")
-    params = {"cart_id": cart_id, "item_id": item_id, "vendor_id": vendor_id, "purchaser_id": purchaser_id,
-              "status": status}
-    conn.execute(query, params)
-    conn.commit()
+    cart_id =
+    for product in products:
+        item_id = product['item_id']
+        price = product['price']
+        shopper_id = session['id']
+        status = 'open'
 
-    flash("Item added to cart successfully!")
-    return redirect(url_for('customer'))
-
+        query = text("INSERT INTO finalcarts (cart_id, item_id, price, shopper_id, status) "
+                     "VALUES (:cart_id, :item_id, :price, :shopper_id, :status)")
+        params = {
+            "cart_id": cart_id,
+            "item_id": item_id,
+            "price": price,
+            "shopper_id": shopper_id,
+            "status": status
+        }
+        conn.execute(query, params)
+        conn.commit()
+    return  render_template(url_for('customer'))
 
 @app.route('/accinfo')
 def accinfo():
     return render_template('accinfo.html')
+
+
+@app.route('/viewchats')
+def viewchats():
+    user_id = session.get('id')
+
+    query = text("SELECT c.chat_id, c.sender_id, c.recipient_id, c.text, a.username AS sender_username "
+                 "FROM finalchats c "
+                 "INNER JOIN finalaccounts a ON c.sender_id = a.id "
+                 "WHERE c.sender_id = :user_id OR c.recipient_id = :user_id")
+    params = {"user_id": user_id}
+    result = conn.execute(query, params)
+    messages = []
+    for row in result:
+        messages.append(row)
+    return render_template('chats.html', messages=messages)
+
+
+@app.route('/send_message', methods=['POST'])
+def send_message():
+    sender_id = session.get('id')
+    recipient_id = request.form['recipient_id']
+    message_text = request.form['text']
+    chat_id = f"chat_{sender_id}_{recipient_id}_{datetime.now().strftime('%Y%m%d%H%M%S')}"
+
+    query = text(
+        "INSERT INTO finalchats (chat_id, sender_id, recipient_id, text)"
+        " VALUES (:chat_id, :sender_id, :recipient_id, :text)")
+    params = {"chat_id": chat_id, "sender_id": sender_id, "recipient_id": recipient_id, "text": message_text}
+    conn.execute(query, params)
+    conn.commit()
+
+    flash("Message sent successfully!")
+    return redirect(url_for('viewchats'))
 
 
 if __name__ == '__main__':
