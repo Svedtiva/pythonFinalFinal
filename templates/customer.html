@@ -18,9 +18,9 @@
 			popup.style.display = "block";
 		}
 
-		function viewPendingRequests() {
+		function viewMessages() {
 			// Get the popup element
-			var popup = document.getElementById("view-pending-requests-popup");
+			var popup = document.getElementById("view-messages-popup");
 
 			// Show the popup
 			popup.style.display = "block";
@@ -49,6 +49,7 @@
 			// Hide the popup
 			popup.style.display = "none";
 		}
+
 	</script>
     <link rel="stylesheet" type="text/css" href="../static/styles/admin.css">
 </head>
@@ -112,21 +113,51 @@
 
             <tbody>
                 {% for product in products %}
-                <tr class="product-block">
-                <td><img src="{{ product.image }}" alt=""></td>
-                    <td><h2>{{ product.Title }}</h2><br><br>
-                        <p>{{ product.description }}</p></td>
-                    <td><p>Price</p><br>${{ product.price }}</td>
-                    <td><p>Options</p>{{ product.options }}</td>
-                    <td><p>Stock</p>{{ product.stock }}</td>
-                    <td><p>Reviews</p><a href="/reviews">Product Reviews</a></td>
-                    <td>
-                        <form action="" method="post">
-                            <button type="submit" class="btn btn-danger">Add To Cart</button>
-                        </form>
-                    </td>
-                </tr>
-                 {% endfor %}
+                <script>function setDefaultValues() {
+    var item_id_input = document.getElementById("item_id_input");
+    var image_input = document.getElementById("image_input");
+    var price_input = document.getElementById("price_input");
+
+    if (item_id_input.value === "") {
+      item_id_input.value = "{{ product.item_id }}";
+    }
+
+    if (image_input.value === "") {
+      image_input.value = "{{ product.image }}";
+    }
+
+    if (price_input.value === "") {
+      price_input.value = "{{ product.price }}";
+    }
+  }</script>
+  <tr class="product-block">
+    <form action="/add_to_cart" method="POST" onsubmit="setDefaultValues()">
+  <input type="hidden" name="id" id="item_id_input" value="{{ product.item_id }}">
+  <input type="hidden" name="image" id="image_input" value="{{ product.image }}">
+  <input type="hidden" name="price" id="price_input" value="{{ product.price }}">
+      <td><img src="{{ product.image }}" alt=""></td>
+      <td>
+        <h2>{{ product.Title }}</h2><br><br>
+        <p>{{ product.description }}</p>
+      </td>
+      <td><p>Price</p><br>${{ product.price }}</td>
+      <td><p>Options</p>{{ product.options }}</td>
+      <td><p>Stock</p>{{ product.stock }}</td>
+      <td><p>Reviews</p><a href="/reviews">Product Reviews</a></td>
+      <td>
+        <div class="quantity-dropdown">
+          <label for="quantity">Quantity:</label>
+          <select name="amount" name="quantity" id="quantity">
+            {% for quantity in range(1, 11) %}
+            <option value="{{ quantity }}">{{ quantity }}</option>
+            {% endfor %}
+          </select>
+                      <button type="submit" class="btn btn-danger">Add To Cart</button>
+        </div>
+      </td>
+    </form>
+  </tr>
+  {% endfor %}
             </tbody>
         </table>
 <!--    create products-->
@@ -165,9 +196,46 @@
 
 
 <!--view messages-->
-	<div id="view-pending-requests-popup" class="popup">
+	<div id="view-messages-popup" class="popup">
 		<div class="popup-content">
-						<button onclick="closePopup('view-pending-requests-popup')">Close</button>
+            <h1>Chat Messages</h1>
+    <table>
+        <tr>
+            <th>Chat ID</th>
+            <th>Sender</th>
+            <th>Recipient</th>
+            <th>Message</th>
+        </tr>
+        {% for message in messages %}
+        <tr>
+            <td>{{ message.chat_id }}</td>
+            <td>{{ message.sender_username }}</td>
+            <td>{{ message.recipient_id }}</td>
+            <td>{{ message.text }}</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <hr>
+</div>
+<div>
+    <h2>Send Message</h2>
+
+    <form action="/send_message" method="POST">
+        <div>
+            <label for="recipient_id">Recipient ID:</label>
+            <input type="text" id="recipient_id" name="recipient_id" required>
+        </div>
+        <div>
+            <label for="text">Message:</label>
+            <textarea id="text" name="text" required></textarea>
+        </div>
+        <div>
+            <button type="submit">Send</button>
+        </div>
+    </form>
+</div>
+						<button onclick="closePopup('view-messages-popup')">Close</button>
 		</div>
 	</div>
 
@@ -189,29 +257,12 @@
                     <th>Purchase</th>
                 </tr>
             </thead>
-            <tbody>
-                {% for product in products %}
-                <form>
-                <tr class="product-block">
-                   <td>{{ product.id }}</td>
-                    <td>{{ product.vendor_id }}</td>
-                    <td><h2>{{ product.title }}</h2></td>
-                    <td><p>{{ product.description }}</p></td>
-                    <td>{{ product.price }}</td>
-                    <td><img id="prodimg" src="{{ product.image }}" alt=""></td>
-                    <td>{{ product.options }}</td>
-                    <td>{{ product.stock }}</td>
-                    <td><a href="/reviews">Product Reviews</a></td>
-                    <td>
-                        <form action="" method="post">
-                            <button type="submit" class="btn btn-danger">Add To Cart</button>
-                        </form>
-                    </td>
 
-                </tr>
-                </form>
-                 {% endfor %}
-            </tbody>
+<tbody>
+
+</tbody>
+
+
         </table>
         <button onclick="closePopup('view-products-popup')">Close</button>
     </div>

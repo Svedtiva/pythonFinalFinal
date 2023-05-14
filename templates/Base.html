@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <script>
+		function viewAllAccounts() {
+			// Get the popup element
+			var popup = document.getElementById("view-all-accounts-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+		function createproducts() {
+			// Get the popup element
+			var popup = document.getElementById("create-product-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+		function viewPendingRequests() {
+			// Get the popup element
+			var popup = document.getElementById("view-pending-requests-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+        function viewProducts() {
+			// Get the popup element
+			var popup = document.getElementById("view-products-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+        function viewInfo() {
+			// Get the popup element
+			var popup = document.getElementById("view-info-popup");
+
+			// Show the popup
+			popup.style.display = "block";
+		}
+
+		function closePopup(popupId) {
+			// Get the popup element
+			var popup = document.getElementById(popupId);
+
+			// Hide the popup
+			popup.style.display = "none";
+		}
+	</script>
+    <link rel="stylesheet" type="text/css" href="../static/styles/admin.css">
+</head>
+<body>
+    <header>
+    {% if session.logged_in %}
+        {% if session.type == 'Vendor' %}
+            <!-- Vendor-specific items -->
+            <h2>Welcome Vendor {{ session.username }}</h2>
+            <!-- Add vendor-specific content here -->
+        {% elif session.type == 'Admin' %}
+            <!-- Admin-specific items -->
+            <h2>Welcome Admin {{ session.username }}</h2>
+            <!-- Add admin-specific content here -->
+        {% else %}
+            <!-- Customer-specific items -->
+            <h2>Welcome Customer {{ session.username }}</h2>
+            <!-- Add customer-specific content here -->
+        {% endif %}
+    {% else %}
+        <h2>Welcome to the Riley Is Great Shopping Network &lt;3</h2>
+    {% endif %}
+
+    <nav>
+        <ul>
+            {% if session.logged_in %}
+        {% if session.type == 'Vendor' %}
+            <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+			<li><a href="#" onclick="viewProducts()">View All Products</a></li>
+            <li><a href="#" onclick="createproducts()">Add New Product</a></li>
+			<li><a href="#" onclick="viewChats()">View Chats</a></li>
+            <li><a href="/customer">Customer View</a></li>
+        {% elif session.type == 'Admin' %}
+            <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+			<li><a href="#" onclick="viewProducts()">View All Products</a></li>
+            <li><a href="#" onclick="createproducts()">Add New Product</a></li>
+			<li><a href="#" onclick="viewChats()">View Chats</a></li>
+            <li><a href="/customer">Customer View</a></li>
+        {% else %}
+            <li><a href="{{ url_for('logout') }}">Log Out</a></li>
+            <li><a href="/viewchats" onclick="viewChats()">Chat With Us!</a></li>
+        {% endif %}
+    {% else %}
+            <li><a href="/in">Log In</a></li>
+            <li><a href="/register">Register</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+        <div>
+            <table>
+                <tbody>
+                <tr>
+                    <input type="text"><button>Search</button>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </header>
+
+
+    <footer>
+        <p>&copy; 2023 Riley is great. All rights reserved.</p>
+    </footer>
+</body>
+</html>
