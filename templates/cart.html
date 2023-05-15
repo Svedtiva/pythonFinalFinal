@@ -1,6 +1,45 @@
 <!DOCTYPE html>
 <html>
 <head>
+    <style>
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th, td {
+  padding: 10px;
+  text-align: left;
+}
+
+th {
+  background-color: #000000;
+}
+
+tr:nth-child(even) {
+  background-color: #fff;
+}
+
+tr:nth-child(odd) {
+  background-color: #f9f9f9;
+}
+
+tr td {
+  background-color: black;
+  color: white;
+  border: 1px solid white;
+}
+
+tr[data-sender-id="{{ session.id }}"] td:nth-child(4) {
+  background-color: black;
+  color: red;
+}
+
+tr[data-recipient-id="{{ session.id }}"] td:nth-child(4) {
+  background-color: black;
+  color: blue;
+}
+</style>
     <script>
 		function viewAllAccounts() {
 			// Get the popup element
@@ -65,7 +104,7 @@
             <!-- Add admin-specific content here -->
         {% else %}
             <!-- Customer-specific items -->
-            <h2>Welcome Customer {{ session.username }}</h2>
+            <h2>Welcome Customer <a href="/accinfo">{{ session.username }}</a></h2>
             <!-- Add customer-specific content here -->
         {% endif %}
     {% else %}
@@ -79,17 +118,21 @@
             <li><a href="{{ url_for('logout') }}">Log Out</a></li>
 			<li><a href="#" onclick="viewProducts()">View All Products</a></li>
             <li><a href="#" onclick="createproducts()">Add New Product</a></li>
-			<li><a href="#" onclick="viewChats()">View Chats</a></li>
+			<li><a href="/viewchats" onclick="viewChats()">View Chats</a></li>
             <li><a href="/customer">Customer View</a></li>
         {% elif session.type == 'Admin' %}
             <li><a href="{{ url_for('logout') }}">Log Out</a></li>
 			<li><a href="#" onclick="viewProducts()">View All Products</a></li>
             <li><a href="#" onclick="createproducts()">Add New Product</a></li>
-			<li><a href="#" onclick="viewChats()">View Chats</a></li>
+			<li><a href="/viewchats" onclick="viewChats()">View Chats</a></li>
             <li><a href="/customer">Customer View</a></li>
         {% else %}
+            <li><a href="/">Home</a></li>
             <li><a href="{{ url_for('logout') }}">Log Out</a></li>
             <li><a href="/viewchats" onclick="viewChats()">Chat With Us!</a></li>
+            <li><a href="/view_cart">View Cart</a></li>
+
+
         {% endif %}
     {% else %}
             <li><a href="/in">Log In</a></li>
@@ -107,7 +150,30 @@
             </table>
         </div>
     </header>
-
+<section>
+          <h1>Cart</h1>
+  {% if cart_items %}
+    <div class="cart-items">
+      {% for item in cart_items %}
+        <div class="product-block">
+          <img src="{{ item.image }}" alt="Product Image">
+          <p>{{ item.price }}</p>
+          <p>{{ item.amount }}</p>
+          <form action="{{ url_for('remove_from_cart', item_id=item.item_id) }}" method="POST">
+            <button type="submit" class="btn-remove">Remove from Cart</button>
+          </form>
+        </div>
+      {% endfor %}
+        <form action="/submit_order/{{ cart_id }}" method="POST">
+  <button type="submit">Submit Order</button>
+</form>
+    </div>
+  {% else %}
+    <div class="product-block">
+    <p>Your cart is empty.</p>
+    </div>
+  {% endif %}
+    </section>
 
     <footer>
 		<p>&copy; Official Riley Is Great Ecommerce Network<a href="#"><3</a></p>

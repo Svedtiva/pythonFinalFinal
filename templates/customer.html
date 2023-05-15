@@ -89,8 +89,12 @@
 			<li><a href="/viewchats" onclick="viewChats()">View Chats</a></li>
             <li><a href="/customer">Customer View</a></li>
         {% else %}
+            <li><a href="/">Home</a></li>
             <li><a href="{{ url_for('logout') }}">Log Out</a></li>
             <li><a href="/viewchats" onclick="viewChats()">Chat With Us!</a></li>
+            <li><a href="/view_cart">View Cart</a></li>
+
+
         {% endif %}
     {% else %}
             <li><a href="/in">Log In</a></li>

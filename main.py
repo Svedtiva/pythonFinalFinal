@@ -389,6 +389,44 @@ def send_message():
     flash("Message sent successfully!")
     return redirect(url_for('viewchats'))
 
+@app.route('/view_cart')
+def view_cart():
+    if 'id' in session:
+        shopper_id = session['id']
+
+        # Retrieve cart items for the logged-in user
+        cart_query = text("SELECT * FROM finalcarts WHERE shopper_id = :shopper_id AND status = 'open'")
+        cart_items = conn.execute(cart_query, {"shopper_id": shopper_id}).fetchall()
+
+        return render_template('cart.html', cart_items=cart_items)
+
+
+@app.route('/remove_from_cart/<int:item_id>', methods=['POST'])
+def remove_from_cart(item_id):
+    if 'id' in session:
+        shopper_id = session['id']
+
+        # Remove item from the cart
+        remove_query = text("DELETE FROM finalcarts WHERE item_id = :item_id AND shopper_id = :shopper_id")
+        conn.execute(remove_query, {"item_id": item_id, "shopper_id": shopper_id})
+        conn.commit()
+
+        return redirect(url_for('view_cart'))
+
+
+@app.route('/submit_order/<int:cart_id>', methods=['POST'])
+def submit_order(cart_id):
+    # Update the cart status to 'closed' in the database
+    query = text("UPDATE finalcarts SET status = 'closed' WHERE cart_id = :cart_id")
+    conn.execute(query, {"cart_id": cart_id})
+    conn.commit()
+
+    # Flash a success message
+    flash("Order submitted successfully.")
+
+    # Redirect to the customer view page
+    return redirect(url_for('customer'))
+
 
 if __name__ == '__main__':
     app.run(debug=True)
