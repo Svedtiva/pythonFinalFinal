@@ -389,6 +389,7 @@ def send_message():
     flash("Message sent successfully!")
     return redirect(url_for('viewchats'))
 
+
 @app.route('/view_cart')
 def view_cart():
     if 'id' in session:
@@ -398,7 +399,18 @@ def view_cart():
         cart_query = text("SELECT * FROM finalcarts WHERE shopper_id = :shopper_id AND status = 'open'")
         cart_items = conn.execute(cart_query, {"shopper_id": shopper_id}).fetchall()
 
-        return render_template('cart.html', cart_items=cart_items)
+        # Get the cart_id from the database
+        cart_query = text("SELECT cart_id FROM finalcarts WHERE shopper_id = :shopper_id AND status = 'open'")
+        cart_result = conn.execute(cart_query, {"shopper_id": shopper_id}).fetchone()
+        cart_id = cart_result[0] if cart_result else None
+
+        # Update the cart_id in the database (if needed)
+        if cart_id is None:
+            # Generate a new cart_id if it doesn't exist
+            update_query = text("INSERT INTO finalcarts (shopper_id, status) VALUES (:shopper_id, 'open') RETURNING cart_id")
+            cart_id = conn.execute(update_query, {"shopper_id": shopper_id}).fetchone()[0]
+
+        return render_template('cart.html', cart_items=cart_items, cart_id=cart_id)
 
 
 @app.route('/remove_from_cart/<int:item_id>', methods=['POST'])
