@@ -112,3 +112,9 @@ footer > p > a {
     color: white;
     font-weight: bold;
 }
+
+.message-box {
+    background-color: black;
+    padding: 10px;
+    color: white;
+}

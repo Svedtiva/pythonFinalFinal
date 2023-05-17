@@ -65,7 +65,7 @@
             </table>
         </div>
     </header>
-    <h1>Welcome, {{session['full_name']}}!</h1>
+<div class="message-box">
     <h2>Account Information</h2>
     <table>
         <tr>
@@ -85,6 +85,8 @@
             <td>{{session['type']}}</td>
         </tr>
     </table>
+</div>
+<div class="message-box">
 <h3>Confirmed Orders:</h3>
 <ul>
     {% for order in orders %}
@@ -96,5 +98,6 @@
     </ul>
     {% endfor %}
 </ul>
+    </div>
 </body>
 </html>

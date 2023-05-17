@@ -279,7 +279,6 @@ def add_to_cart():
         result = conn.execute(max_id_query).fetchone()
         max_id = result[0] if result[0] is not None else 1
 
-        # Convert max_id to an integer
         max_id = int(max_id)
         new_id = max_id + 1
 
@@ -292,19 +291,16 @@ def add_to_cart():
         shopper_id = session['id']
         status = 'open'
 
-        # Check if the user already has an open cart
         open_cart_query = text("SELECT cart_id FROM finalcarts WHERE shopper_id = :shopper_id AND status = 'open'")
         open_cart_result = conn.execute(open_cart_query, {"shopper_id": shopper_id}).fetchone()
         if open_cart_result:
-            cart_id = open_cart_result[0]  # Use the existing cart_id
+            cart_id = open_cart_result[0]
 
-            # Check if the item already exists in the cart
             existing_item_query = text("SELECT * FROM finalcarts WHERE cart_id = :cart_id AND item_id = :item_id")
             existing_item_result = conn.execute(existing_item_query,
                                                 {"cart_id": cart_id, "item_id": item_id}).fetchone()
             if existing_item_result:
-                # Item already exists, increase the amount
-                existing_amount = int(existing_item_result[4])  # Accessing amount using index position
+                existing_amount = int(existing_item_result[4])
                 new_amount = existing_amount + int(amount)
 
                 update_query = text("UPDATE finalcarts SET amount = :new_amount "
@@ -317,7 +313,6 @@ def add_to_cart():
                 conn.execute(update_query, update_params)
                 conn.commit()
             else:
-                # Item does not exist, add it to the cart
                 query = text("INSERT INTO finalcarts (cart_id, item_id, image, price, amount, shopper_id, status) "
                              "VALUES (:cart_id, :item_id, :image, :price, :amount, :shopper_id, :status)")
                 params = {
@@ -332,7 +327,6 @@ def add_to_cart():
                 conn.execute(query, params)
                 conn.commit()
         else:
-            # Create a new cart
             query = text("INSERT INTO finalcarts (cart_id, item_id, image, price, amount, shopper_id, status) "
                          "VALUES (:cart_id, :item_id, :image, :price, :amount, :shopper_id, :status)")
             params = {
@@ -355,11 +349,11 @@ def accinfo():
         cart_query = text("SELECT * FROM finalcarts WHERE shopper_id = :shopper_id")
         cart_items = conn.execute(cart_query, {"shopper_id": session['id']}).fetchall()
 
-        total = 0  # Initialize total variable
+        total = 0
 
         for cart_item in cart_items:
-            price = float(cart_item[3])  # Assuming price is in the third column (index 2)
-            amount = int(cart_item[4])  # Assuming amount is in the fourth column (index 3)
+            price = float(cart_item[3])
+            amount = int(cart_item[4])
             item_total = price * amount
             total += item_total
         shopper_id = session['id']
@@ -367,7 +361,7 @@ def accinfo():
         params = {"shopper_id": shopper_id}
         result = conn.execute(query, params)
         confirmed_orders = result.fetchall()
-        return render_template('accinfo.html', orders=confirmed_orders[:2], total=total, cart_items=cart_items)
+        return render_template('accinfo.html', orders=confirmed_orders[:1], total=total, cart_items=cart_items)
 
 
 @app.route('/viewchats')
@@ -409,11 +403,9 @@ def view_cart():
     if 'id' in session:
         shopper_id = session['id']
 
-        # Retrieve cart items for the logged-in user
         cart_query = text("SELECT * FROM finalcarts WHERE shopper_id = :shopper_id AND status = 'open'")
         cart_items = conn.execute(cart_query, {"shopper_id": shopper_id}).fetchall()
 
-        # Get the cart_id from the database
         cart_query = text("SELECT cart_id FROM finalcarts WHERE shopper_id = :shopper_id AND status = 'open'")
         cart_result = conn.execute(cart_query, {"shopper_id": shopper_id}).fetchone()
         cart_id = cart_result[0] if cart_result else None
@@ -426,7 +418,6 @@ def remove_from_cart(item_id):
     if 'id' in session:
         shopper_id = session['id']
 
-        # Remove item from the cart
         remove_query = text("DELETE FROM finalcarts WHERE item_id = :item_id AND shopper_id = :shopper_id")
         conn.execute(remove_query, {"item_id": item_id, "shopper_id": shopper_id})
         conn.commit()
@@ -436,27 +427,23 @@ def remove_from_cart(item_id):
 
 @app.route('/submit_order/<int:cart_id>', methods=['POST'])
 def submit_order(cart_id):
-    # Retrieve cart items for the specified cart_id
     cart_query = text("SELECT * FROM finalcarts WHERE cart_id = :cart_id")
     cart_items = conn.execute(cart_query, {"cart_id": cart_id}).fetchall()
 
-    total = 0  # Initialize total variable
+    total = 0
 
     for cart_item in cart_items:
-        price = float(cart_item[3])  # Assuming price is in the third column (index 2)
-        amount = int(cart_item[4])  # Assuming amount is in the fourth column (index 3)
+        price = float(cart_item[3])
+        amount = int(cart_item[4])
         item_total = price * amount
         total += item_total
 
-    # Update the cart status to 'closed' in the database
     query = text("UPDATE finalcarts SET status = 'closed' WHERE cart_id = :cart_id")
     conn.execute(query, {"cart_id": cart_id})
     conn.commit()
 
-    # Flash a success message
     flash("Order submitted successfully.")
 
-    # Redirect to the order summary page with the total
     return render_template('ordersummary.html', total=total, cart_items=cart_items)
 
 
@@ -467,15 +454,14 @@ def submit_review(cart_id):
         cart_items = conn.execute(cart_query, {"cart_id": cart_id}).fetchall()
         return cart_items
 
-    cart_items = get_cart_items(cart_id)  # Retrieve the cart items based on the cart_id
+    cart_items = get_cart_items(cart_id)
 
     for cart_item in cart_items:
-        review_id = cart_item.cart_item_id  # Assuming review_id corresponds to cart_item_id
-        item_id = cart_item.item_id  # Assuming item_id is available in cart_item
-        rating = int(request.form.get(f'rating{review_id}'))  # Assuming rating is an integer
+        review_id = cart_item.cart_item_id
+        item_id = cart_item.item_id
+        rating = int(request.form.get(f'rating{review_id}'))
         review_text = request.form.get(f'review{review_id}')
 
-        # Insert the review into the final_reviews table
         query = text("INSERT INTO final_reviews (item_id, review_id, rating, text) VALUES (:item_id, :review_id, :rating, :text)")
         conn.execute(query, {"item_id": item_id, "review_id": review_id, "rating": rating, "text": review_text})
         conn.commit()
