@@ -53,19 +53,19 @@
     <link rel="stylesheet" type="text/css" href="../static/styles/admin.css">
 </head>
 <body>
-    <header>
+<header>
     {% if session.logged_in %}
         {% if session.type == 'Vendor' %}
             <!-- Vendor-specific items -->
-            <h2>Welcome Vendor {{ session.username }}</h2>
+            <h2>Welcome Vendor <a href="/accinfo">{{ session.username }}</a></h2>
             <!-- Add vendor-specific content here -->
         {% elif session.type == 'Admin' %}
             <!-- Admin-specific items -->
-            <h2>Welcome Admin {{ session.username }}</h2>
+            <h2>Welcome Admin <a href="/accinfo">{{ session.username }}</a></h2>
             <!-- Add admin-specific content here -->
         {% else %}
             <!-- Customer-specific items -->
-            <h2>Welcome Customer {{ session.username }}</h2>
+            <h2>Welcome Customer <a href="/accinfo">{{ session.username }}</a></h2>
             <!-- Add customer-specific content here -->
         {% endif %}
     {% else %}
@@ -79,17 +79,22 @@
             <li><a href="{{ url_for('logout') }}">Log Out</a></li>
 			<li><a href="#" onclick="viewProducts()">View All Products</a></li>
             <li><a href="#" onclick="createproducts()">Add New Product</a></li>
-			<li><a href="#" onclick="viewChats()">View Chats</a></li>
+			<li><a href="/viewchats" onclick="viewChats()">View Chats</a></li>
             <li><a href="/customer">Customer View</a></li>
         {% elif session.type == 'Admin' %}
             <li><a href="{{ url_for('logout') }}">Log Out</a></li>
 			<li><a href="#" onclick="viewProducts()">View All Products</a></li>
             <li><a href="#" onclick="createproducts()">Add New Product</a></li>
-			<li><a href="#" onclick="viewChats()">View Chats</a></li>
+			<li><a href="/viewchats" onclick="viewChats()">View Chats</a></li>
             <li><a href="/customer">Customer View</a></li>
+            <li><a href="/view_cart">View Cart</a></li>
         {% else %}
+            <li><a href="/">Home</a></li>
             <li><a href="{{ url_for('logout') }}">Log Out</a></li>
             <li><a href="/viewchats" onclick="viewChats()">Chat With Us!</a></li>
+            <li><a href="/view_cart">View Cart</a></li>
+
+
         {% endif %}
     {% else %}
             <li><a href="/in">Log In</a></li>

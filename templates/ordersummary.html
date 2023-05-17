@@ -1,20 +1,18 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <meta charset="UTF-8">
-    <title>Account Page</title>
-    <link rel="stylesheet" type="text/css" href="../static/styles/admin.css">
+    <title>Confirmed Orders</title>
+        <link rel="stylesheet" type="text/css" href="../static/styles/admin.css">
 </head>
-<body>
 <header>
     {% if session.logged_in %}
         {% if session.type == 'Vendor' %}
             <!-- Vendor-specific items -->
-            <h2>Welcome Vendor {{ session.username }}</h2>
+            <h2>Welcome Vendor <a href="/accinfo">{{ session.username }}</a></h2>
             <!-- Add vendor-specific content here -->
         {% elif session.type == 'Admin' %}
             <!-- Admin-specific items -->
-            <h2>Welcome Admin {{ session.username }}</h2>
+            <h2>Welcome Admin <a href="/accinfo">{{ session.username }}</a></h2>
             <!-- Add admin-specific content here -->
         {% else %}
             <!-- Customer-specific items -->
@@ -65,36 +63,36 @@
             </table>
         </div>
     </header>
-    <h1>Welcome, {{session['full_name']}}!</h1>
-    <h2>Account Information</h2>
-    <table>
-        <tr>
-            <td>Username:</td>
-            <td>{{session['username']}}</td>
-        </tr>
-        <tr>
-            <td>Email:</td>
-            <td>{{session['email']}}</td>
-        </tr>
-        <tr>
-            <td>Full Name:</td>
-            <td>{{session['full_name']}}</td>
-        </tr>
-        <tr>
-            <td>Account Type:</td>
-            <td>{{session['type']}}</td>
-        </tr>
-    </table>
-<h3>Confirmed Orders:</h3>
-<ul>
-    {% for order in orders %}
+<body>
+    <h1>Confirmed Orders</h1>
     <h2>Total: ${{ total }}</h2>
 
     <h3>Ordered Items:</h3>
-    {{order.cart_id}}
     <ul>
+        {% for cart_item in cart_items %}
+            <li>{{ cart_item.product_name }} (Price: {{ cart_item.price }}, Amount: {{ cart_item.amount }})</li>
+        {% endfor %}
     </ul>
-    {% endfor %}
-</ul>
+
+    <h3>Provide Review:</h3>
+    <form action="/submit_review" method="post">
+        {% for cart_item in cart_items %}
+            <div>
+                <p>Product: {{ cart_item.product_name }}</p>
+                <p>Price: {{ cart_item.price }}</p>
+                <p>Amount: {{ cart_item.amount }}</p>
+                <p>Rating:</p>
+                <select name="rating{{ cart_item.cart_item_id }}">
+                    <option value="1">1</option>
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                </select>
+                <input type="text" name="review{{ cart_item.cart_item_id }}" placeholder="Enter your review">
+            </div>
+        {% endfor %}
+        <button type="submit">Submit Review</button>
+    </form>
 </body>
 </html>

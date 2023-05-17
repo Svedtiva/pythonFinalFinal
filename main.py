@@ -148,7 +148,7 @@ def add_product():
     conn.execute(query, params)
     conn.commit()
 
-    return url_for('admin')
+    return redirect(url_for('admin'))
 
 
 @app.route('/admin_delete_product/<int:item_id>', methods=['POST'])
@@ -346,14 +346,28 @@ def add_to_cart():
             }
             conn.execute(query, params)
             conn.commit()
-
         return redirect(url_for('customer'))
-
 
 
 @app.route('/accinfo')
 def accinfo():
-    return render_template('accinfo.html')
+    if 'id' in session:
+        cart_query = text("SELECT * FROM finalcarts WHERE shopper_id = :shopper_id")
+        cart_items = conn.execute(cart_query, {"shopper_id": session['id']}).fetchall()
+
+        total = 0  # Initialize total variable
+
+        for cart_item in cart_items:
+            price = float(cart_item[3])  # Assuming price is in the third column (index 2)
+            amount = int(cart_item[4])  # Assuming amount is in the fourth column (index 3)
+            item_total = price * amount
+            total += item_total
+        shopper_id = session['id']
+        query = text("SELECT * FROM finalcarts WHERE shopper_id = :shopper_id AND status = 'closed'")
+        params = {"shopper_id": shopper_id}
+        result = conn.execute(query, params)
+        confirmed_orders = result.fetchall()
+        return render_template('accinfo.html', orders=confirmed_orders[:2], total=total, cart_items=cart_items)
 
 
 @app.route('/viewchats')
@@ -404,12 +418,6 @@ def view_cart():
         cart_result = conn.execute(cart_query, {"shopper_id": shopper_id}).fetchone()
         cart_id = cart_result[0] if cart_result else None
 
-        # Update the cart_id in the database (if needed)
-        if cart_id is None:
-            # Generate a new cart_id if it doesn't exist
-            update_query = text("INSERT INTO finalcarts (shopper_id, status) VALUES (:shopper_id, 'open') RETURNING cart_id")
-            cart_id = conn.execute(update_query, {"shopper_id": shopper_id}).fetchone()[0]
-
         return render_template('cart.html', cart_items=cart_items, cart_id=cart_id)
 
 
@@ -428,6 +436,18 @@ def remove_from_cart(item_id):
 
 @app.route('/submit_order/<int:cart_id>', methods=['POST'])
 def submit_order(cart_id):
+    # Retrieve cart items for the specified cart_id
+    cart_query = text("SELECT * FROM finalcarts WHERE cart_id = :cart_id")
+    cart_items = conn.execute(cart_query, {"cart_id": cart_id}).fetchall()
+
+    total = 0  # Initialize total variable
+
+    for cart_item in cart_items:
+        price = float(cart_item[3])  # Assuming price is in the third column (index 2)
+        amount = int(cart_item[4])  # Assuming amount is in the fourth column (index 3)
+        item_total = price * amount
+        total += item_total
+
     # Update the cart status to 'closed' in the database
     query = text("UPDATE finalcarts SET status = 'closed' WHERE cart_id = :cart_id")
     conn.execute(query, {"cart_id": cart_id})
@@ -436,8 +456,33 @@ def submit_order(cart_id):
     # Flash a success message
     flash("Order submitted successfully.")
 
-    # Redirect to the customer view page
+    # Redirect to the order summary page with the total
+    return render_template('ordersummary.html', total=total, cart_items=cart_items)
+
+
+@app.route('/submit_review/<int:cart_id>', methods=['POST'])
+def submit_review(cart_id):
+    def get_cart_items(cart_id):
+        cart_query = text("SELECT * FROM finalcarts WHERE cart_id = :cart_id")
+        cart_items = conn.execute(cart_query, {"cart_id": cart_id}).fetchall()
+        return cart_items
+
+    cart_items = get_cart_items(cart_id)  # Retrieve the cart items based on the cart_id
+
+    for cart_item in cart_items:
+        review_id = cart_item.cart_item_id  # Assuming review_id corresponds to cart_item_id
+        item_id = cart_item.item_id  # Assuming item_id is available in cart_item
+        rating = int(request.form.get(f'rating{review_id}'))  # Assuming rating is an integer
+        review_text = request.form.get(f'review{review_id}')
+
+        # Insert the review into the final_reviews table
+        query = text("INSERT INTO final_reviews (item_id, review_id, rating, text) VALUES (:item_id, :review_id, :rating, :text)")
+        conn.execute(query, {"item_id": item_id, "review_id": review_id, "rating": rating, "text": review_text})
+        conn.commit()
+
+    flash("Reviews submitted successfully.")
     return redirect(url_for('customer'))
+
 
 
 if __name__ == '__main__':
